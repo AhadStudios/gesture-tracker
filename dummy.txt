@@ -1,0 +1,67 @@
+Hand Gesture Tracker — Code Summary
+Prepared: 31 October 2026
+Purpose: Brief technical overview of the codebase for internal / client review.
+
+Scope
+-----
+Counts exclude the virtual environment, cache folders, and git metadata.
+Only project source files were included.
+
+Python line count
+-----------------
+File                                                         Total   Code   Blank  Comments
+app.py                                                         543    410      95        38
+model/__init__.py                                                2      2       0         0
+model/keypoint_classifier/keypoint_classifier.py                43     33       8         2
+model/point_history_classifier/point_history_classifier.py      51     39      10         2
+utils/__init__.py                                                1      1       0         0
+utils/cvfpscalc.py                                              21     15       6         0
+--------------------------------------------------------------------------------------------
+Python total                                                   661    500     119        42
+
+Training notebooks (separate from the live application):
+- keypoint_classification.ipynb        ~75 code lines (22 code cells)
+- keypoint_classification_EN.ipynb     ~75 code lines (22 code cells)
+- point_history_classification.ipynb   ~91 code lines (23 code cells)
+
+The production Python application is approximately 500 lines of code.
+Including notebook training cells, the total is roughly 740 lines.
+
+What the application does
+-------------------------
+This is a real-time hand gesture recognition tool built with MediaPipe and OpenCV.
+It uses a webcam to detect 21 hand landmarks and runs two lightweight TFLite models:
+
+1. KeyPointClassifier — static hand signs: Open, Close, Pointer, OK
+2. PointHistoryClassifier — finger motion: Stop, Clockwise, Counter Clockwise, Move
+
+Processing pipeline (app.py, about 82% of the Python code):
+  camera capture
+  -> MediaPipe Hands landmark detection
+  -> relative / normalized keypoints
+  -> optional CSV logging for dataset collection
+  -> classification
+  -> on-screen overlay (bounding box, landmarks, FPS, labels)
+
+The classifier modules load a TFLite interpreter (ai-edge-litert, with TensorFlow as fallback),
+run inference, and return the predicted class. A small utility measures rolling FPS.
+
+Origin and maintenance
+----------------------
+The project is based on the public Kazuhito00 MediaPipe hand-gesture sample.
+This fork updates the environment so it runs on current systems:
+- MediaPipe pinned to 0.10.9
+- TensorFlow Lite runtime replaced with ai-edge-litert
+- Verified on Python 3.11 (Windows)
+
+Structure
+---------
+The live app is self-contained. Drawing, preprocessing, and logging live in app.py.
+Models sit in separate modules. Training notebooks are optional and are not required
+to run the webcam demo. There is no backend service, test suite, or extra config layer.
+
+Summary
+-------
+This is a compact computer-vision demo: webcam loop plus two classifiers,
+approximately 500 lines of Python. Suitable as a working prototype for
+real-time hand-sign and finger-motion recognition.
